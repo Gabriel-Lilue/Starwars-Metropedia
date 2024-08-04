@@ -1,0 +1,2 @@
+class Archivo:
+    pass

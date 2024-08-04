@@ -1,0 +1,2 @@
+class Estadistica:
+    pass
