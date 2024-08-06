@@ -1,2 +1,3 @@
 class Estadistica:
+    # Matplotlib?
     pass
