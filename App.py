@@ -17,6 +17,10 @@ from Archivos import Archivo
 class App:
     # Constructor de la clase App
     def __init__(self):
+        '''
+        Inicializa la aplicación con listas vacías para almacenar la información.
+        '''
+
         self.peliculas = []
         self.especies = []
         self.planetas = []
@@ -29,8 +33,11 @@ class App:
         self.urls = {} # Diccionario de URLs para las APIs
 
     def get_api_info(self):
-        print('\nCargando información... Esta operación puede tomar unos minutos, por favor espere.\n')
+        '''
+        Función que centraliza el llamado de otras funciones que obtienen y guardan la información de la API
+        '''
 
+        print('\nCargando información... Esta operación puede tomar unos minutos, por favor espere.\n')
         self.get_transporte()
         print('Vehículos y Naves cargados...')
         self.get_peliculas()
@@ -43,24 +50,504 @@ class App:
         print('Personajes cargados...')
 
         self.actualizar_info()
-        # Aqui actualizar las listas de objetos y agregar armas CSV!!!!
+        self.csv_info() # Aqui actualizar las listas de objetos y agregar armas
+        print('Información actualizada...')
+    
+    # Funciones de utilidad
+    def agregar_URLs(self, objeto, url):
+        '''
+        Agrega una URL al diccionario de URLs con el objeto como clave.
+        Args:
+            objeto: objeto que se va a agregar
+            url: URL correspondiente al objeto
+        '''
+        self.urls[objeto] = url
+    
+    def buscar_URLs(self, url):
+        '''
+        Busca una URL en el diccionario de URLs y devuelve el objeto correspondiente si existe.
+        Args:
+            url: URL a buscar
+        Return:
+            Objeto correspondiente si existe, None en caso contrario
+        '''
+        for name, url_match in self.urls.items():
+            if url_match == url:
+                return name
+        return None
+    
+    def return_list(self, lista):
+        '''
+        Permite encontrar el objeto asociado a un URL, buscándolo en el atributo de diccionario establecido,
+        y sustituirlo en la posición respectiva en la lista pasada por parámetro
+
+        Args:
+            lista: lista de URLs
+        Return:
+            Lista de elementos sustituidos correspondientes
+        '''
+        if len(lista) != 0:
+            for url in lista:
+                name = self.buscar_URLs(url)
+                if name is not None:
+                    lista[lista.index(url)] = name
+        return lista
+    
+    def get_all_items(self, url):
+        '''
+        Obtiene todos los items del URL de la API, haciendo varias solicitudes si es necesario.
+
+        Args:
+            url: URL de la API
+        Return:
+            lista de todos los items
+        '''
+
+        lista = []
+        while True:
+            response = requests.get(url)
+            data = response.json()
+            lista.extend(data['results'])
+            if data.get('next') is None:
+                break
+            url = data['next']  # Actualizamos la URL para la próxima página
+            response = requests.get(url)  # Hacemos la petición a la próxima página
+        return lista
+    
+    def buscar_objeto(self, id, lista):
+        '''
+        Busca un objeto con un ID específico en una lista de objetos.
+        Args:
+            id: ID del objeto a buscar
+            lista: lista de objetos
+        Return:
+            Objeto correspondiente si existe, None en caso contrario
+        '''
+        for elemento in lista:
+            if int(elemento.id) == id:
+                print('a')
+                return elemento
+        return None
+
 
     def get_transporte(self):
-        pass
+        url = 'https://swapi.dev/api/vehicles/'
+        vehiculos = self.get_all_items(url) # Obtenemos todos los vehiculos de la API
+        # self, id,name,model,manufacturer,cost_in_credits,length,max_atmosphering_speed,cargo_capacity,vehicle_class):
+        for vehiculo in vehiculos:
+            id = len(self.vehiculos) + 1
+            name = vehiculo['name']
+            model = vehiculo['model']
+            manufacturer = vehiculo['manufacturer']
+            cost_in_credits = vehiculo['cost_in_credits']
+            length = vehiculo['length']
+            max_atmosphering_speed = vehiculo['max_atmosphering_speed']
+            cargo_capacity = vehiculo['cargo_capacity']
+            vehicle_class = vehiculo['vehicle_class']
+
+            self.agregar_URLs(name, vehiculo['url'])
+
+            self.vehiculos.append(Vehiculo(id,name,model,manufacturer,cost_in_credits,length,max_atmosphering_speed,cargo_capacity,vehicle_class))
+
+        url = 'https://swapi.dev/api/starships/'
+        naves = self.get_all_items(url)
+        # self, id,name,model,manufacturer,cost_in_credits,length,max_atmosphering_speed,cargo_capacity,hyperdrive_rating,MGLT,starship_class
+        for nave in naves:
+            id = len(self.naves) + 1
+            name = nave['name']
+            model = nave['model']
+            manufacturer = nave['manufacturer']
+            cost_in_credits = nave['cost_in_credits']
+            length = nave['length']
+            max_atmosphering_speed = nave['max_atmosphering_speed']
+            cargo_capacity = nave['cargo_capacity']
+            hyperdrive_rating = nave['hyperdrive_rating']
+            MGLT = nave['MGLT']
+            starship_class = nave['starship_class']
+
+            self.agregar_URLs(name, nave['url'])
+
+            self.naves.append(Nave(id,name,model,manufacturer,cost_in_credits,length,max_atmosphering_speed,cargo_capacity,hyperdrive_rating,MGLT,starship_class))
 
     def get_peliculas(self):
-        pass
-
-    def get_planetas(self):
-        pass
+        url = 'https://swapi.dev/api/films/'
+        peliculas = self.get_all_items(url)
+        for pelicula in peliculas:
+            id = len(self.peliculas) + 1
+            title = pelicula['title']
+            episode_id = pelicula['episode_id']
+            opening_crawl = pelicula['opening_crawl']
+            director = pelicula['director']
+            producer = pelicula['producer']
+            release_date = pelicula['release_date']
+            
+            self.agregar_URLs(title, pelicula['url'])
+            
+            # self, id, episode_id, release_date, opening_crawl, director, producer
+            self.peliculas.append(Pelicula(id,title,episode_id,release_date ,opening_crawl,director,producer))
 
     def get_especies(self):
-        pass
+        url = 'https://swapi.dev/api/species/'
+        especies = self.get_all_items(url)
+        for especie in especies:
+            # self, id, name, classification, designation, average_height, skin_colors, hair_colors, eye_colors, average_lifespan, language, homeworld
+            id = len(self.especies) + 1
+            name = especie['name']
+            classification = especie['classification']
+            designation = especie['designation']
+            average_height = especie['average_height']
+            skin_colors = especie['skin_colors']
+            hair_colors = especie['hair_colors']
+            eye_colors = especie['eye_colors']
+            average_lifespan = especie['average_lifespan']
+            language = especie['language']
+
+            homeworld = especie['homeworld']
+            if homeworld is not None:
+                homeworld_name = self.buscar_URLs(homeworld)
+                if homeworld_name is not None:
+                    homeworld = homeworld_name
+            else:
+                homeworld = 'Unknown'
+
+            people = especie['people'] # Lista de URLs de personajes
+            
+            films = self.return_list(especie['films']) # Lista de URLs de películas
+
+            self.agregar_URLs(name, especie['url'])
+
+            self.especies.append(Especie(id,name,classification,designation,average_height,skin_colors,hair_colors,eye_colors,average_lifespan,language,homeworld,people,films))
+
+    def get_planetas(self):
+        url = 'https://swapi.dev/api/planets/'
+        planetas = self.get_all_items(url)
+        # self, id,name,diameter,rotation_period,orbital_period,gravity,population,climate,terrain,surface_water,residents,films
+        for planeta in planetas:
+            id = len(self.planetas) + 1
+            name = planeta['name']
+            diameter = planeta['diameter']
+            rotation_period = planeta['rotation_period']
+            orbital_period = planeta['orbital_period']
+            gravity = planeta['gravity']
+            population = planeta['population']
+            climate = planeta['climate']
+            terrain = planeta['terrain']
+            surface_water = planeta['surface_water']
+
+            residents = planeta['residents'] # Lista de URLs de personajes
+            
+            films = self.return_list(planeta['films'])
+            
+
+            self.agregar_URLs(name, planeta['url'])
+
+            self.planetas.append(Planeta(id,name,diameter,rotation_period,orbital_period,gravity,population,climate,terrain,surface_water,residents,films))
 
     def get_personajes(self):
-        pass
+        url = 'https://swapi.dev/api/people/'
+        personajes = self.get_all_items(url)
+        # id, name, species, gender, films, homeworld, starships, vehicles
+        for personaje in personajes:
+            id = len(self.personajes) + 1
 
+            name = personaje['name']
+            species = personaje['species']
+            if species != []:
+                species = species[0]
+                species_name = self.buscar_URLs(species)
+                if species_name is not None:
+                    species = species_name
+            else:
+                species = 'Unknown'
 
-    # Algunos atributos vienen con links desde la API, entonces para cambiarlo
+            gender = personaje['gender']
+
+            films = self.return_list(personaje['films'])
+
+            homeworld = personaje['homeworld']
+            if homeworld is not None:
+                homeworld_name = self.buscar_URLs(homeworld)
+                if homeworld_name is not None:
+                    homeworld = homeworld_name
+            else:
+                homeworld = 'Unknown'
+
+            starships = self.return_list(personaje['starships'])
+            vehicles = self.return_list(personaje['vehicles'])
+
+            self.agregar_URLs(name, personaje['url'])
+
+            self.personajes.append(Personaje(id,name,species,gender,films,homeworld,starships,vehicles))
+
     def actualizar_info(self):
+        # Actualizamos la información de los objetos
+        # ESPECIES
+        for especie in self.especies:
+            # Personas
+            for i, persona_url in enumerate(especie.people):
+                persona_name = self.buscar_URLs(persona_url)
+                if persona_name is not None:
+                    especie.people[i] = persona_name
+        
+        # PLANETAS
+        for planeta in self.planetas:
+            # Personas
+            for i, persona_url in enumerate(planeta.residents):
+                persona_name = self.buscar_URLs(persona_url)
+                if persona_name is not None:
+                    planeta.residents[i] = persona_name
+    # Para combinar info del csv con los objetos que ya existen
+    def csv_info(self):
+        # Aqui se agregan las armas
+        archivo = Archivo()
+        armas = archivo.leer_csv('csv/weapons.csv')
+        for arma in armas:
+            # id,name,model,manufacturer,cost_in_credits ,length ,type,description,films
+
+            # id,name,model,manufacturer,cost_in_credits,length,type,description,films
+            id = int(arma[0])
+            name = arma[1]
+            model = arma[2]
+            manufacturer = arma[3]
+            cost_in_credits = arma[4]
+            length = arma[5]
+            weapon_type = arma[6]
+            description = arma[7]
+            films = arma[8]
+
+            self.armas.append(Arma(id,name,model,manufacturer,cost_in_credits,length,weapon_type,description,films))
+
+        # Verificar información de los objetos
+
+        # PELICULAS
+        peliculas_csv = archivo.leer_csv('csv/films.csv')
+        ids = []
+        for pelicula in self.peliculas:
+            for pelicula_csv in peliculas_csv: 
+                if pelicula.episode_id == pelicula_csv[0]:
+                    pelicula.title = pelicula_csv[1]
+                    ids.append(pelicula.episode_id)
+        
+        for pelicula_csv in peliculas_csv:
+            if pelicula_csv[0] not in ids:
+                id = len(self.peliculas) + 1
+                title = pelicula_csv[1]
+                episode_id = pelicula_csv[0]
+                release_date = pelicula_csv[2]
+                opening_crawl = pelicula_csv[3]
+                director = pelicula_csv[4]
+                producer = pelicula_csv[5]
+
+                self.peliculas.append(Pelicula(id,title,episode_id,release_date,opening_crawl,director,producer))
+
+        # ESPECIES
+        especies_csv = archivo.leer_csv('csv/species.csv')
+        names = []
+        for especie in self.especies:
+            names.append(especie.name)
+
+        for especie_csv in especies_csv:
+            if especie_csv[1] not in names:
+                id = len(self.especies) + 1
+                # id,name,classification,designation,average_height,skin_colors,hair_colors,eye_colors,average_lifespan,language,homeworld
+                name = especie_csv[1]
+                classification = especie_csv[2]
+                designation = especie_csv[3]
+                average_height = especie_csv[4]
+                skin_colors = especie_csv[5]
+                hair_colors = especie_csv[6]
+                eye_colors = especie_csv[7]
+                average_lifespan = especie_csv[8]
+                language = especie_csv[9]
+                homeworld = especie_csv[10]
+
+                people = ["No definido"]
+                films = ["No definido"]
+
+                self.especies.append(Especie(id,name,classification,designation,average_height,skin_colors,hair_colors,eye_colors,average_lifespan,language,homeworld,people,films))
+        
+        # PLANETAS
+        planetas_csv = archivo.leer_csv('csv/planets.csv')
+        names = []
+        for planeta in self.planetas:
+            names.append(planeta.name)
+        
+        for planeta_csv in planetas_csv:
+            if planeta_csv[1] not in names:
+                id = len(self.planetas) + 1
+                # id,name,diameter,rotation_period,orbital_period,gravity,population,climate,terrain,surface_water,residents,films
+                name = planeta_csv[1]
+                diameter = planeta_csv[2]
+                rotation_period = planeta_csv[3]
+                orbital_period = planeta_csv[4]
+                gravity = planeta_csv[5]
+                population = planeta_csv[6]
+                climate = planeta_csv[7]
+                terrain = planeta_csv[8]
+                surface_water = planeta_csv[9]
+
+                if "," in planeta_csv[10]:
+                    residents = planeta_csv[10].split(",")
+                else:
+                    residents = [planeta_csv[10]]
+                
+                if "," in planeta_csv[11]:
+                    films = planeta_csv[11].split(",")
+                else:
+                    [planeta_csv[11]]
+
+                self.planetas.append(Planeta(id,name,diameter,rotation_period,orbital_period,gravity,population,climate,terrain,surface_water,residents,films))
+
+        # PERSONAJES
+        personajes_csv = archivo.leer_csv('csv/characters.csv')
+        names = []
+        for personaje in self.personajes:
+            names.append(personaje.name)
+
+        
+        for personaje_csv in personajes_csv:
+            if personaje_csv[1] not in names:
+                id = len(self.personajes) + 1
+                name = personaje_csv[1]
+                species = personaje_csv[2]
+                gender = personaje_csv[3]
+                films = personaje_csv[4].split(",")
+                homeworld = personaje_csv[10]
+                starships = ["No definido"]
+                vehicles = ["No definido"]
+
+                self.personajes.append(Personaje(id,name,species,gender,films,homeworld,starships,vehicles))
+
+        # NAVES
+        naves_csv = archivo.leer_csv('csv/starships.csv')
+        names = []
+        for nave in self.naves:
+            names.append(nave.name)
+
+        for nave_csv in naves_csv:
+            if nave_csv[1] not in names:
+                id = len(self.naves) + 1
+                # id,name,model,manufacturer,cost_in_credits,length,max_atmosphering_speed,cargo_capacity,hyperdrive_rating,MGLT,starship_class
+                # id,name,model,manufacturer,cost_in_credits,length,max_atmosphering_speed,crew,passengers,cargo_capacity,consumables,hyperdrive_rating,MGLT,starship_class,pilots,films
+                name = nave_csv[1]
+                model = nave_csv[2]
+                manufacturer = nave_csv[3]
+                cost_in_credits = nave_csv[4]
+                length = nave_csv[5]
+                max_atmosphering_speed = nave_csv[6]
+                cargo_capacity = nave_csv[9]
+                hyperdrive_rating = nave_csv[11]
+                MGLT = nave_csv[12]
+                starship_class = nave_csv[13]
+
+                self.naves.append(Nave(id,name,model,manufacturer,cost_in_credits,length,max_atmosphering_speed,cargo_capacity,hyperdrive_rating,MGLT,starship_class))
+
+        # VEHICULOS
+        vehiculos_csv = archivo.leer_csv('csv/vehicles.csv')
+        names = []
+        for vehiculo in self.vehiculos:
+            names.append(vehiculo.name)
+        
+        for vehiculo_csv in vehiculos_csv:
+            if vehiculo_csv[1] not in names:
+                id = len(self.vehiculos) + 1
+                # id,name,model,manufacturer,cost_in_credits,length,max_atmosphering_speed,cargo_capacity,vehicle_class
+                # id,name,model,manufacturer,cost_in_credits,length,max_atmosphering_speed,crew,passengers,cargo_capacity,consumables,vehicle_class,pilots,films
+                name = vehiculo_csv[1]
+                model = vehiculo_csv[2]
+                manufacturer = vehiculo_csv[3]
+                cost_in_credits = vehiculo_csv[4]
+                length = vehiculo_csv[5]
+                max_atmosphering_speed = vehiculo_csv[6]
+                cargo_capacity = vehiculo_csv[9]
+                vehicle_class = vehiculo_csv[11]
+
+                self.vehiculos.append(Vehiculo(id,name,model,manufacturer,cost_in_credits,length,max_atmosphering_speed,cargo_capacity,vehicle_class))
+
+    # Funciones de mostrar
+    def mostrar_peliculas(self):
+        for i, pelicula in enumerate(self.peliculas):
+            print(pelicula.show())
+
+    def mostrar_especies(self):
+        for i,especie in enumerate(self.especies):
+            print(especie.show())
+
+    def mostrar_planetas(self):
+        for i,planeta in enumerate(self.planetas):
+            print(planeta.show())
+
+    def buscar_personajes(self):
         pass
+    
+    def estadisticas(self):
+        pass
+
+    def menu_misiones(self):
+        pass
+
+
+    def exit(self):
+        # aqui crear funcion para guardar info de txt
+        print("Gracias por su visita, vuelva pronto...")
+
+    def continuar(self):
+        input('Presione ENTER para continuar...\n')
+        os.system('cls' if os.name == 'nt' else 'clear')
+
+
+
+    def menu(self):
+        self.get_api_info()
+        print('''STAR WARS METROPEDIA
+- "Que la fuerza te acompañe" -
+Bienvenido/a''')
+        
+        while True:
+            option = input(''' MENÚ 
+1. Ver Películas de la Saga
+2. Ver Especies de Seres Vivos
+3. Ver Planetas
+4. Buscar Personajes
+---------------------
+5. Visualizar Gráficos
+6. Estadísticas sobre Naves
+---------------------
+7. Misiones
+---------------------
+8. Salir
+
+Ingrese el número correspondiente a su selección -> ''')
+            match option:
+                case "1":
+                    print('PELICULAS\n')
+                    self.mostrar_peliculas()
+                    self.continuar()
+                case "2":
+                    print("ESPECIES\n")
+                    self.mostrar_especies()
+                    self.continuar()
+                case "3":
+                    print("PLANETAS\n")
+                    self.mostrar_planetas()
+                    self.continuar()
+                case "4":
+                    self.buscar_personajes()
+                case "5":
+                    for nave in self.naves:
+                        print(nave.show())
+                case "6":
+                    self.estadisticas()
+                case "7":
+                    self.menu_misiones()
+                case "8":
+                    self.exit()
+                    break
+                case _:
+                    print("OPCIÓN INVÁLIDA... Intente nuevamente\n")
+
+def main():
+    app = App()
+    app.menu()
+
+main()
