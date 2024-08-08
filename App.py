@@ -15,12 +15,7 @@ from Mision import Mision
 from Archivos import Archivo
 
 class App:
-    # Constructor de la clase App
     def __init__(self):
-        '''
-        Inicializa la aplicación con listas vacías para almacenar la información.
-        '''
-
         self.peliculas = []
         self.especies = []
         self.planetas = []
@@ -32,12 +27,10 @@ class App:
 
         self.urls = {} # Diccionario de URLs para las APIs
 
-    def get_api_info(self):
-        '''
-        Función que centraliza el llamado de otras funciones que obtienen y guardan la información de la API
-        '''
 
+    def get_api_info(self):
         print('\nCargando información... Esta operación puede tomar unos minutos, por favor espere.\n')
+
         self.get_transporte()
         print('Vehículos y Naves cargados...')
         self.get_peliculas()
@@ -52,57 +45,28 @@ class App:
         self.actualizar_info()
         self.csv_info() # Aqui actualizar las listas de objetos y agregar armas
         print('Información actualizada...')
+        self.continuar()
     
-    # Funciones de utilidad
-    def agregar_URLs(self, objeto, url):
-        '''
-        Agrega una URL al diccionario de URLs con el objeto como clave.
-        Args:
-            objeto: objeto que se va a agregar
-            url: URL correspondiente al objeto
-        '''
-        self.urls[objeto] = url
+
+
+    def add_URLs(self, name, url):
+        self.urls[name] = url
     
-    def buscar_URLs(self, url):
-        '''
-        Busca una URL en el diccionario de URLs y devuelve el objeto correspondiente si existe.
-        Args:
-            url: URL a buscar
-        Return:
-            Objeto correspondiente si existe, None en caso contrario
-        '''
+    def find_URLs_match(self, url):
         for name, url_match in self.urls.items():
             if url_match == url:
                 return name
         return None
-    
+            
     def return_list(self, lista):
-        '''
-        Permite encontrar el objeto asociado a un URL, buscándolo en el atributo de diccionario establecido,
-        y sustituirlo en la posición respectiva en la lista pasada por parámetro
-
-        Args:
-            lista: lista de URLs
-        Return:
-            Lista de elementos sustituidos correspondientes
-        '''
         if len(lista) != 0:
             for url in lista:
-                name = self.buscar_URLs(url)
+                name = self.find_URLs_match(url)
                 if name is not None:
                     lista[lista.index(url)] = name
         return lista
-    
+
     def get_all_items(self, url):
-        '''
-        Obtiene todos los items del URL de la API, haciendo varias solicitudes si es necesario.
-
-        Args:
-            url: URL de la API
-        Return:
-            lista de todos los items
-        '''
-
         lista = []
         while True:
             response = requests.get(url)
@@ -113,18 +77,17 @@ class App:
             url = data['next']  # Actualizamos la URL para la próxima página
             response = requests.get(url)  # Hacemos la petición a la próxima página
         return lista
-    
+
     def buscar_objeto(self, id, lista):
-        '''
-        Busca un objeto con un ID específico en una lista de objetos.
-        Args:
-            id: ID del objeto a buscar
-            lista: lista de objetos
-        Return:
-            Objeto correspondiente si existe, None en caso contrario
-        '''
         for elemento in lista:
             if int(elemento.id) == id:
+                print('a')
+                return elemento
+        return None
+    
+    def buscar_objeto2(self, name, lista):
+        for elemento in lista:
+            if elemento.name == name:
                 print('a')
                 return elemento
         return None
@@ -145,7 +108,7 @@ class App:
             cargo_capacity = vehiculo['cargo_capacity']
             vehicle_class = vehiculo['vehicle_class']
 
-            self.agregar_URLs(name, vehiculo['url'])
+            self.add_URLs(name, vehiculo['url'])
 
             self.vehiculos.append(Vehiculo(id,name,model,manufacturer,cost_in_credits,length,max_atmosphering_speed,cargo_capacity,vehicle_class))
 
@@ -165,7 +128,7 @@ class App:
             MGLT = nave['MGLT']
             starship_class = nave['starship_class']
 
-            self.agregar_URLs(name, nave['url'])
+            self.add_URLs(name, nave['url'])
 
             self.naves.append(Nave(id,name,model,manufacturer,cost_in_credits,length,max_atmosphering_speed,cargo_capacity,hyperdrive_rating,MGLT,starship_class))
 
@@ -181,7 +144,7 @@ class App:
             producer = pelicula['producer']
             release_date = pelicula['release_date']
             
-            self.agregar_URLs(title, pelicula['url'])
+            self.add_URLs(title, pelicula['url'])
             
             # self, id, episode_id, release_date, opening_crawl, director, producer
             self.peliculas.append(Pelicula(id,title,episode_id,release_date ,opening_crawl,director,producer))
@@ -204,7 +167,7 @@ class App:
 
             homeworld = especie['homeworld']
             if homeworld is not None:
-                homeworld_name = self.buscar_URLs(homeworld)
+                homeworld_name = self.find_URLs_match(homeworld)
                 if homeworld_name is not None:
                     homeworld = homeworld_name
             else:
@@ -214,7 +177,7 @@ class App:
             
             films = self.return_list(especie['films']) # Lista de URLs de películas
 
-            self.agregar_URLs(name, especie['url'])
+            self.add_URLs(name, especie['url'])
 
             self.especies.append(Especie(id,name,classification,designation,average_height,skin_colors,hair_colors,eye_colors,average_lifespan,language,homeworld,people,films))
 
@@ -239,7 +202,7 @@ class App:
             films = self.return_list(planeta['films'])
             
 
-            self.agregar_URLs(name, planeta['url'])
+            self.add_URLs(name, planeta['url'])
 
             self.planetas.append(Planeta(id,name,diameter,rotation_period,orbital_period,gravity,population,climate,terrain,surface_water,residents,films))
 
@@ -254,7 +217,7 @@ class App:
             species = personaje['species']
             if species != []:
                 species = species[0]
-                species_name = self.buscar_URLs(species)
+                species_name = self.find_URLs_match(species)
                 if species_name is not None:
                     species = species_name
             else:
@@ -266,7 +229,7 @@ class App:
 
             homeworld = personaje['homeworld']
             if homeworld is not None:
-                homeworld_name = self.buscar_URLs(homeworld)
+                homeworld_name = self.find_URLs_match(homeworld)
                 if homeworld_name is not None:
                     homeworld = homeworld_name
             else:
@@ -275,17 +238,18 @@ class App:
             starships = self.return_list(personaje['starships'])
             vehicles = self.return_list(personaje['vehicles'])
 
-            self.agregar_URLs(name, personaje['url'])
+            self.add_URLs(name, personaje['url'])
 
             self.personajes.append(Personaje(id,name,species,gender,films,homeworld,starships,vehicles))
 
     def actualizar_info(self):
         # Actualizamos la información de los objetos
+
         # ESPECIES
         for especie in self.especies:
             # Personas
             for i, persona_url in enumerate(especie.people):
-                persona_name = self.buscar_URLs(persona_url)
+                persona_name = self.find_URLs_match(persona_url)
                 if persona_name is not None:
                     especie.people[i] = persona_name
         
@@ -293,10 +257,10 @@ class App:
         for planeta in self.planetas:
             # Personas
             for i, persona_url in enumerate(planeta.residents):
-                persona_name = self.buscar_URLs(persona_url)
+                persona_name = self.find_URLs_match(persona_url)
                 if persona_name is not None:
                     planeta.residents[i] = persona_name
-    # Para combinar info del csv con los objetos que ya existen
+
     def csv_info(self):
         # Aqui se agregan las armas
         archivo = Archivo()
@@ -464,7 +428,15 @@ class App:
 
                 self.vehiculos.append(Vehiculo(id,name,model,manufacturer,cost_in_credits,length,max_atmosphering_speed,cargo_capacity,vehicle_class))
 
-    # Funciones de mostrar
+
+    def mostrar_armas(self):
+        for i,arma in enumerate(self.armas):
+            print(arma.show())
+    
+    def mostrar_personajes(self):
+        for i,personaje in enumerate(self.personajes):
+            print(personaje.show())
+
     def mostrar_peliculas(self):
         for i, pelicula in enumerate(self.peliculas):
             print(pelicula.show())
@@ -477,13 +449,158 @@ class App:
         for i,planeta in enumerate(self.planetas):
             print(planeta.show())
 
+    def mostrar_naves(self):
+        for i,nave in enumerate(self.naves):
+            print(nave.show())
+
+
     def buscar_personajes(self):
+        while True:
+            print('\nBÚSQUEDA DE PERSONAJES')
+            name = input('Ingrese el nombre del personaje deseado -> ').lower()
+
+            results = []
+            for personaje in self.personajes:
+                if name in personaje.name.lower():
+                    results.append(personaje)
+
+            if len(results) == 0:
+                ans = input('No hay coincidencias.\n¿Desea reintentar? [y/n] --> ')
+                while ans.lower() not in ['y','n']:
+                    ans = input('Error...\n¿Desea reintentar? [y/n] --> ')
+                if ans.lower() == 'n':
+                    break
+            else:
+                print('\nSe han encontrado las siguientes coincidencias:\n')
+                for p in results:
+                    print(p.show())
+
+                ans = input('¿Desea buscar otro personaje? [y/n] --> ')
+                while ans.lower() not in ['y','n']:
+                    ans = input('Error...\n¿Desea buscar otro personaje? [y/n] --> ')
+                if ans.lower() == 'n':
+                    break
+
+    def buscar_personajes2(self, lista_personaes):
+        for personaje in self.personajes:
+            if personaje not in lista_personaes:
+                print(personaje.show())
+
+        while True:
+            personaje_seleccion = input('Ingrese el ID del personaje deseado -> ')
+
+            for personaje in self.personajes:
+                if personaje.id == int(personaje_seleccion):
+                    print('Personaje encontrado...\n')
+                    print(personaje.show())
+                    input('Presione ENTER para continuar...')
+                    return personaje
+                
+            print('Personaje no encontrado...\n')
+            ans = input('¿Desea reintentar? [y/n] --> ')
+            while ans.lower() not in ['y','n']:
+                ans = input('Error...\n¿Desea reintentar? [y/n] --> ')
+            if ans.lower() == 'n':
+                break
+        return None
+
+    def buscar_planeta(self):
+        self.mostrar_planetas()
+        while True:
+            planeta_seleccion = input('Ingrese el ID del planeta destino -> ')
+            while not planeta_seleccion.isnumeric():
+                planeta_seleccion = input('Error...\nIngrese el ID del planeta destino -> ')
+
+            for planeta in self.planetas:
+                if planeta.id== int(planeta_seleccion):
+                    print('Planeta encontrado...\n')
+                    print(planeta.show())
+                    self.continuar()
+                    return planeta
+                
+            print('Planeta no encontrado...\n')
+            ans = input('¿Desea reintentar? [y/n] --> ')
+            while ans.lower() not in ['y','n']:
+                ans = input('Error...\n¿Desea reintentar? [y/n] --> ')
+            if ans.lower() == 'n':
+                break
+
+        return None
+    
+    def buscar_nave(self):
+        self.mostrar_naves()
+        while True:
+            nave_seleccion = input('Ingrese el ID de la nave a utilizar -> ')
+
+            while not nave_seleccion.isnumeric():
+                nave_seleccion = input('Error...\nIngrese el ID de la nave a utilizar -> ')
+
+            for nave in self.naves:
+                if nave.id== int(nave_seleccion):
+                    print('Nave encontrada...\n')
+                    print(nave.show())
+                    self.continuar()
+                    return nave
+                
+            print('Nave no encontrada...\n')
+            ans = input('¿Desea reintentar? [y/n] --> ')
+            while ans.lower() not in ['y','n']:
+                ans = input('Error...\n¿Desea reintentar? [y/n] --> ')
+            if ans.lower() == 'n':
+                break
+
+        return None
+
+    def buscar_arma(self, lista_armas):
+        print("Lista de armas disponibles:")
+        for arma in self.armas:
+            if arma not in lista_armas:
+                print(arma.show())
+
+        while True:
+            arma_seleccion = input('Ingrese el ID del arma a utilizar -> ')
+            while not arma_seleccion.isnumeric():
+                arma_seleccion = input('Error...\nIngrese el ID del arma a utilizar -> ')
+
+            arma_encontrada = False
+            for arma in self.armas:
+                if arma.id == int(arma_seleccion):
+                    print('Arma encontrada...\n')
+                    print(arma.show())  # Mostrar los detalles del arma encontrada
+                    input('Presione ENTER para continuar...')
+                    return arma
+
+            if not arma_encontrada:
+                print('Arma no encontrada...\n')
+                ans = input('¿Desea reintentar? [y/n] --> ')
+                while ans.lower() not in ['y', 'n']:
+                    ans = input('Error...\n¿Desea reintentar? [y/n] --> ')
+                if ans.lower() == 'n':
+                    break
+
+        return None
+
+    # Eduardo
+    def txt_a_mision(self):
+        pass
+
+    def mision_a_txt(self):
+        pass
+        
+    def datos_mision(self,mision):
         pass
     
-    def estadisticas(self):
+    def modificar_mision(self,mision):
         pass
 
     def menu_misiones(self):
+        pass
+
+    # Santiago
+    def graficos(self):
+        pass
+
+    def estadisticas(self):
         pass
 
 
@@ -499,6 +616,7 @@ class App:
 
     def menu(self):
         self.get_api_info()
+
         print('''STAR WARS METROPEDIA
 - "Que la fuerza te acompañe" -
 Bienvenido/a''')
