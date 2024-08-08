@@ -27,7 +27,7 @@ class App:
 
         self.urls = {} # Diccionario de URLs para las APIs
 
-
+    # CENTRALIZAR FUNCIONES DE LA API
     def get_api_info(self):
         print('\nCargando información... Esta operación puede tomar unos minutos, por favor espere.\n')
 
@@ -48,7 +48,7 @@ class App:
         self.continuar()
     
 
-
+    # FUNCIONES UTILES
     def add_URLs(self, name, url):
         self.urls[name] = url
     
@@ -92,7 +92,7 @@ class App:
                 return elemento
         return None
 
-
+    # OBTENER INFORMACION DE LA API
     def get_transporte(self):
         url = 'https://swapi.dev/api/vehicles/'
         vehiculos = self.get_all_items(url) # Obtenemos todos los vehiculos de la API
@@ -428,32 +428,32 @@ class App:
 
                 self.vehiculos.append(Vehiculo(id,name,model,manufacturer,cost_in_credits,length,max_atmosphering_speed,cargo_capacity,vehicle_class))
 
-
+    # FUNCIONES DE MOSTRAR
     def mostrar_armas(self):
-        for i,arma in enumerate(self.armas):
+        for arma in self.armas:
             print(arma.show())
     
     def mostrar_personajes(self):
-        for i,personaje in enumerate(self.personajes):
+        for personaje in self.personajes:
             print(personaje.show())
 
     def mostrar_peliculas(self):
-        for i, pelicula in enumerate(self.peliculas):
+        for pelicula in self.peliculas:
             print(pelicula.show())
 
     def mostrar_especies(self):
-        for i,especie in enumerate(self.especies):
+        for especie in self.especies:
             print(especie.show())
 
     def mostrar_planetas(self):
-        for i,planeta in enumerate(self.planetas):
+        for planeta in self.planetas:
             print(planeta.show())
 
     def mostrar_naves(self):
-        for i,nave in enumerate(self.naves):
+        for nave in self.naves:
             print(nave.show())
 
-
+    # FUNCIONES DE BUSCAR
     def buscar_personajes(self):
         while True:
             print('\nBÚSQUEDA DE PERSONAJES')
@@ -580,6 +580,7 @@ class App:
 
         return None
 
+    # FUNCIONES DE MISIONES
     # Eduardo
     def txt_a_mision(self):
         pass
@@ -596,6 +597,7 @@ class App:
     def menu_misiones(self):
         pass
 
+    # FUNCIONES DE ESTADISTICAS
     # Santiago
     def graficos(self):
         pass
