@@ -12,11 +12,35 @@ class Archivo:
                 lista.append(row)
         return lista
 
-    def archivo_existe(self,nombre_archivo):
-        return os.path.exists(nombre_archivo)
+    def archivo_existe(self):
+        return os.path.exists('Metropedia.txt')
+
+    def guardar_data(self,misiones):
+        file = open('Metropedia.txt','w')
+        string = str(misiones)
+        file.write(string)
+        file.close()
+
+    def acceder_data(self):
+        with open('Metropedia.txt','r') as file:
+            content = file.read()
+            misiones = content.split('\n')
+        return misiones
     
-    def archivo_vacio(self,nombre_archivo):
-        if self.archivo_existe(nombre_archivo):
-            with open(nombre_archivo, 'r') as f:
-                return f.read().strip() == ''
-        return False
+    def archivo_vacio(self):
+        file = 'Metropedia.txt'
+        if not os.path.isfile(file):
+            return False
+        else:
+            with open('Metropedia.txt', "r") as file:
+                content = file.read()
+                return len(content.strip()) == 0
+            
+    def listoToString(self,lista):
+        msg = ''
+        for i,element in enumerate(lista):
+            if i != len(lista)-1:
+                msg += f'{element.name}---'
+            else:
+                msg += f'{element.name}'
+        return msg
