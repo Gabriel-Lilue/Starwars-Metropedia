@@ -583,19 +583,322 @@ class App:
     # FUNCIONES DE MISIONES
     # Eduardo
     def txt_a_mision(self):
-        pass
+        lista_misiones_txt = Archivo().acceder_data()
+        if lista_misiones_txt[len(lista_misiones_txt) - 1] == "":
+            lista_misiones_txt.pop()
+
+        for mision_txt in lista_misiones_txt:
+            mision = mision_txt.split(",")
+            id = int(mision[0])
+            name = mision[1]
+            destination = self.buscar_objeto2(mision[2], self.planetas)
+            spaceship = self.buscar_objeto2(mision[3], self.naves)
+
+            weapons_txt = mision[4].split("---")
+            weapons = []
+            for weapon in weapons_txt:
+                arma = self.buscar_objeto2(weapon, self.armas)
+                if arma is not None:
+                    weapons.append(arma)
+
+            characters_txt = mision[5].split("---")
+            characters = []
+            for character in characters_txt:
+                personaje = self.buscar_objeto2(character, self.personajes)
+                if personaje is not None:
+                    characters.append(personaje)
+
+            self.misiones.append(Mision(id,name,destination,spaceship,weapons,characters))
+            print(Mision(id,name,destination,spaceship,weapons,characters).show())
 
     def mision_a_txt(self):
-        pass
+        misiones_txt = ""
+        archivo = Archivo()
+
+        for mision in self.misiones:
+            mision_string = ""
+
+            mision_string += f"{mision.id},{mision.name},{mision.destination.name},{mision.spaceship.name},{archivo.listoToString(mision.weapons)},{archivo.listoToString(mision.characters)}"
+            # mision_string += archivo.listoToString(mision.weapons)
+            # mision_string += archivo.listoToString(mision.characters)
+            misiones_txt += mision_string + "\n"
+
+        archivo.guardar_data(misiones_txt)
         
     def datos_mision(self,mision):
-        pass
+        os.system('cls' if os.name == 'nt' else 'clear')
+        print(mision.show())
+        print('Datos Específicos')
+        mision.show_destination()
+        mision.show_spaceship()
+        mision.show_weapons()
+        mision.show_characters()
     
     def modificar_mision(self,mision):
-        pass
+        print('\nMODIFICAR MISIÓN\n')
+        print(mision.show())
+
+        while True:
+            opcion = input('''¿Qué deseas modificar?
+1. Armas a Utilizar
+2. Integrantes de la Misión
+3. Volver
+--> ''')
+            while not opcion.isnumeric() or int(opcion) not in [1,2,3]:
+                opcion = input('Error...\n¿Qué deseas modificar? --> ')
+
+            if opcion == "1": # ARMAS
+                opcion_armas = input('\nMODIFICAR ARMAS\n1. Agregar\n2. Eliminar\n3. Volver\n--> ')
+                while not opcion_armas.isnumeric() or int(opcion_armas) not in [1,2,3]:
+                    opcion_armas = input('Error...\n¿Qué deseas hacer? --> ')
+                
+                if opcion_armas == "1": # AGREGAR
+                    if len(mision.weapons) != 7:
+                        print('\nARMAS DISPONIBLES\n')
+                        for arma in self.armas:
+                            print(arma.show())
+                        arma = self.buscar_arma(mision.weapons)
+                        if arma is not None and arma not in mision.weapons:
+                            mision.weapons.append(arma)
+                            print('Arma agregada...\n')
+                            print(mision.show())
+                        else:
+                            print('Arma no encontrada o ya se encuentra agregada...\n')
+                    else:
+                        print('No puedes agregar más armas... (Máximo 7)\n')
+
+                elif opcion_armas == "2": # ELIMINAR
+                    if len(mision.weapons) != 0:
+                        print('\nARMAS DE LA MISIÓN\n')
+                        for arma in mision.weapons:
+                            print(arma.show())
+
+                        arma_seleccion = input('Ingrese el ID del arma a eliminar -> ')
+                        while not arma_seleccion.isnumeric():
+                            arma_seleccion = input('Error...\nIngrese el ID del arma a eliminar -> ')
+
+                        arma = self.buscar_objeto(int(arma_seleccion), mision.weapons)
+                        if arma is not None:
+                            mision.weapons.remove(arma)
+                            print('Arma eliminada...\n')
+                            print(mision.show())
+                        else:
+                            print('Arma no encontrada...\n')
+                    else:
+                        print('No hay armas para eliminar...\n')
+                
+            elif opcion =="2": # INTEGRANTES
+                opcion_personajes = input('\nMODIFICAR INTEGRANTES\n1. Agregar\n2. Eliminar\n3. Volver\n--> ')
+                while not opcion_personajes.isnumeric() or int(opcion_personajes) not in [1,2,3]:
+                    opcion_personajes = input('Error...\n¿Qué deseas hacer? --> ')
+                
+                if opcion_personajes == "1": # AGREGAR
+                    if len(mision.characters) != 7:
+                        print('\nPERSONAJES DISPONIBLES\n')
+                        for personaje in self.personajes:
+                            print(personaje.show())
+                        personaje = self.buscar_personajes2(mision.characters)
+                        if personaje is not None and personaje not in mision.characters:
+                            mision.characters.append(personaje)
+                            print('Personaje agregado...\n')
+                            print(mision.show())
+                        else:
+                            print('Personaje no encontrado o ya se encuentra agregado...\n')
+                    else:
+                        print('No puedes agregar más personajes... (Máximo 7)\n')
+
+                elif opcion_personajes == "2": # ELIMINAR
+                    if len(mision.characters) != 0:
+                        print('\nPERSONAJES DE LA MISIÓN\n')
+                        for personaje in mision.characters:
+                            print(personaje.show())
+
+                        personaje_seleccion = input('Ingrese el ID del personaje a eliminar -> ')
+                        while not personaje_seleccion.isnumeric():
+                            personaje_seleccion = input('Error...\nIngrese el ID del personaje a eliminar -> ')
+
+                        personaje = self.buscar_objeto(int(personaje_seleccion), mision.characters)
+                        if personaje is not None:
+                            mision.characters.remove(personaje)
+                            print('Personaje eliminado...\n')
+                            print(mision.show())
+                        else:
+                            print('Personaje no encontrado...\n')
+                    else:
+                        print('No hay personajes para eliminar...\n')
+                
+            elif opcion == "3":
+                break
 
     def menu_misiones(self):
-        pass
+        print('- BIENVENIDO AL MENÚ DE MISIONES -')
+        archivo = Archivo()
+        if archivo.archivo_existe() and len(self.misiones) != 0:
+            ans = input('Existe un archivo con misiones guardadas.\n¿Desea cargarlas? No podrá hacerlo luego. [y/n]: ')
+            while ans.lower() not in ['y','n']:
+                ans = input('Error...\n¿Desea cargarlas? [y/n]: ')
+            if ans.lower() == 'y':
+                self.txt_a_mision()
+                print('Misiones cargadas...\n')
+
+        while True:
+            opcion = input('''
+1. Construir una Misión
+2. Modificar Misiones Creadas
+3. Visualizar Misiones
+4. Guardar Misiones Creadas
+5. Volver
+Ingrese el número correspondiente a su selección -> ''')
+        
+            match opcion:
+                case "1": # Construir una misión
+                    if len(self.misiones) != 5:
+
+                        id = len(self.misiones) + 1
+                        print('\nNOMBRE DE LA MISIÓN')
+                        nombre = input('Ingrese el nombre de la misión -> ')
+
+
+                        print('\nDESTINO DE LA MISIÓN')
+                        destino = self.buscar_planeta()
+                        if destino is None:
+                            print('Misión cancelada...\n')
+                            break
+
+                        print('\nNAVE A UTILIZAR')
+                        nave = self.buscar_nave()
+                        if nave is None:
+                            print('Misión cancelada...\n')
+                            break
+
+
+                        print('\nARMAS A UTILIZAR')
+                        print('Puedes escoger hasta 7 armas...')
+                        armas = []
+                        while True:
+                            arma = self.buscar_arma(armas)
+
+                            if arma is None:
+                                print('Arma no encontrada...\n')
+                                if len(armas) == 0:
+                                    print('Misión cancelada...\n')
+                                    break
+                            else:
+                                if arma not in armas:
+                                    armas.append(arma)
+                                    print('Arma agregada...\n')
+                                else:
+                                    print('El arma ya se encuentra agregada...\n')
+                                if len(armas) != 7:
+                                    ans = input('¿Desea agregar otra arma? [y/n] -> ')
+                                    while ans.lower() not in ['y','n']:
+                                        ans = input('Error...\n¿Desea agregar otra arma? [y/n] -> ')
+                                    if ans.lower() == 'n':
+                                        break
+                                else:
+                                    break
+
+
+                        print('\nINTEGRANTES DE LA MISIÓN')
+                        print('Puedes escoger hasta 7 personajes...')
+                        personajes = []
+                        while True:
+                            personaje = self.buscar_personajes2(personajes)
+
+                            if personaje is None:
+                                print('Personaje no encontrado...\n')
+                                if len(personajes) == 0:
+                                    print('Misión cancelada...\n')
+                                    break
+                            else:
+                                if personaje not in personajes:
+                                    personajes.append(personaje)
+                                    print('Personaje agregado...\n')
+                                else:
+                                    print('El personaje ya se encuentra agregado...\n')
+                                if len(personajes) != 7:
+                                    ans = input('¿Desea agregar otro personaje? [y/n] -> ')
+                                    while ans.lower() not in ['y','n']:
+                                        ans = input('Error...\n¿Desea agregar otro personaje? [y/n] -> ')
+                                    if ans.lower() == 'n':
+                                        break
+                                else:
+                                    break
+                        
+                        self.misiones.append(Mision(id,nombre,destino,nave,armas,personajes))
+
+                        print(f'¡Misión creada exitosamente!\nVisualice los detalles:\n{self.misiones[-1].show()}')
+                    
+                    else:
+                        print('No puedes crear más misiones...\n')
+                
+                case "2": # Modificar misiones (FALTA)
+                    if len(self.misiones) != 0:
+                        print('MISIONES ACTUALES\n')
+                        for i,mision in enumerate(self.misiones):
+                            print(f'{mision.show()}')
+                        
+                        option = input("Ingrese el número correspondiente a la misión a modificar. [Ingrese 0 para volver al menú] --> ")
+                        while not option.isnumeric() or int(option) > len(self.misiones) + 1:
+                            option = input('Error...\nIngrese el número correspondiente a la misión a modificar. [Ingrese 0 para volver al menú] --> ')
+                        
+                        mision_seleccion = self.buscar_objeto(int(option), self.misiones)
+                        while mision_seleccion is None:
+                            print('Misión no encontrada...\n')
+                            option = input("Ingrese el número correspondiente a la misión a modificar. [Ingrese 0 para volver al menú] --> ")
+                            mision_seleccion = self.buscar_objeto(option, self.misiones)
+                        
+                        self.modificar_mision(mision_seleccion)
+
+                        if option != '0':
+                            pass
+                            
+                    else:
+                        print('No hay misiones creadas...\n')
+                
+                case "3": # Visualizar misiones
+                    if len(self.misiones) != 0:
+                        while True:
+                            print('MISIONES ACTUALES\n')
+                            for mision in self.misiones:
+                                print(f'ID - {mision.id}. NOMBRE: {mision.name}')
+                            mision_id = input('Ingrese el ID de la misión a visualizar -> ')
+
+                            while not mision_id.isnumeric() or int(mision_id) > len(self.misiones) + 1:
+                                mision_id = input('Error...\nIngrese el ID de la misión a visualizar -> ')
+
+                            self.datos_mision(mision)
+                            ans = input('¿Desea visualizar otra misión? [y/n] --> ')
+                            while ans.lower() not in ['y','n']:
+                                ans = input('Error...\n¿Desea visualizar otra misión? [y/n] --> ')
+                            if ans.lower() == 'n':
+                                break
+                            
+                    else:
+                        print('No hay misiones creadas...\n')
+                
+                case "4": # Guardar misiones
+                    for mision in self.misiones:
+                        print(mision.show())
+                    
+                    opcion = input('¿Desea guardar las misiones creadas? Sobreescribirá el archivo ya existente [y/n] --> ')
+                    while opcion.lower() not in ['y','n']:
+                        opcion = input('Error...\n¿Desea guardar las misiones creadas? [y/n] --> ')
+                    
+                    if opcion.lower() == 'y':
+                        print('Guardando misiones...')
+                        self.mision_a_txt()
+                        print('Misiones guardadas...\n')
+                        self.continuar()
+                    else:
+                        print('Misiones no guardadas...\n')
+                        self.continuar()
+    
+                case "5":
+                    break
+                case _:
+                    print("Opción inválida.\n")
+
 
     # FUNCIONES DE ESTADISTICAS
     # Santiago
