@@ -829,7 +829,7 @@ class App:
                     opcion_armas = input('Error...\n¿Qué deseas hacer? --> ')
                 
                 if opcion_armas == "1": # AGREGAR
-                    if len(mision.weapons) != 7:
+                    if len(mision.weapons) != 7: # Maximo de armas que se pueden tener
                         print('\nARMAS DISPONIBLES\n')
                         for arma in self.armas:
                             print(arma.show())
@@ -1092,6 +1092,8 @@ Ingrese el número correspondiente a su selección -> ''')
 2. Cantidad de Personajes Nacidos en Planetas de la Saga
 3. Volver
 Ingrese el número de su selección --> ''')
+            
+            # Validación de la opción
             while not opcion.isnumeric() or int(opcion) not in range(1,4):
                 opcion = input('Error...\nIngrese el número de su selección --> ')
 
@@ -1109,16 +1111,20 @@ Ingrese el número de su selección --> ''')
                         opcion_naves = input('Error...\n¿Qué gráfico deseas visualizar? --> ')
 
                     if opcion_naves == "1": # LONGITUD DE LAS NAVES
-                        diccionario_longitud = {"unknown": 0}
+
+                        diccionario_longitud = {"unknown": 0} # Diccionario para almacenar la longitud de las naves
+                        
                         for nave in self.naves:
                             if str(nave.length) not in diccionario_longitud:
-                                diccionario_longitud[str(nave.length)] = 1
+                                diccionario_longitud[str(nave.length)] = 1 # Si no existe la longitud, se agrega al diccionario
                             else:
-                                diccionario_longitud[str(nave.length)] += 1
+                                diccionario_longitud[str(nave.length)] += 1 # Si existe, se suma 1 a la cantidad de naves con esa longitud
 
+                        # Genera 2 listas, una con las claves y otra con los valores
                         longitudes = list(diccionario_longitud.keys())
                         cantidad_longitudes = list(diccionario_longitud.values())
 
+                        # Crear gráfico
                         plt.figure(figsize=(12,6))
                         plt.bar(longitudes, cantidad_longitudes, color='purple')
                         plt.xlabel('Longitudes')
@@ -1193,11 +1199,12 @@ Ingrese el número de su selección --> ''')
             elif opcion == "2": # GRÁFICO DE PERSONAJES EN PLANETAS
                 # Planetas con episodios
                 diccionario_planetas = {"unknown": 0}
+
                 for planeta in self.planetas:
-                    if len(planeta.films) > 0:
-                        if len(planeta.residents) > 0:
+                    if len(planeta.films) > 0: # Si el planeta tiene episodios (sale en la saga)
+                        if len(planeta.residents) > 0: # Si se conoce la cantidad de residentes
                             diccionario_planetas[planeta.name.capitalize().strip()] = len(planeta.residents)
-                        else:
+                        else: # Si se desconoce la cantidad de residentes
                             diccionario_planetas["unknown"] += 1
                 # Crear gráfico
                 nombres_planetas = list(diccionario_planetas.keys())
@@ -1218,7 +1225,71 @@ Ingrese el número de su selección --> ''')
         """
         Estadísticas de las clases de nave
         """
-        pass
+        print('\nTABLA DE ESTADÍSTICOS BÁSICOS DE LAS NAVES\n')
+        clases_de_naves = {}
+        funciones_estadisticas = Estadistica()
+        # Guarda las clase de las naves con sus respectivas estadísticas
+        for nave in self.naves:
+            if nave.starship_class.capitalize().strip() not in clases_de_naves:
+                clases_de_naves[nave.starship_class.capitalize().strip()] = {
+                    "hyperdrive_rating": [],
+                    "MGLT": [],
+                    "max_atmosphering_speed": [],
+                    "cost_in_credits": []
+                }
+        
+            # Guarda las estadísticas de cada nave por clase
+            #   - hyperdrive_rating
+            if nave.hyperdrive_rating is not None and funciones_estadisticas.is_number(nave.hyperdrive_rating):
+                clases_de_naves[nave.starship_class.capitalize().strip()]["hyperdrive_rating"].append(float(nave.hyperdrive_rating))
+            
+            #   - MGLT
+            if nave.MGLT is not None and funciones_estadisticas.is_number(nave.MGLT):
+                clases_de_naves[nave.starship_class.capitalize().strip()]["MGLT"].append(float(nave.MGLT))
+            
+            #  - max_atmosphering_speed
+            if nave.max_atmosphering_speed is not None and funciones_estadisticas.is_number(nave.max_atmosphering_speed):
+                clases_de_naves[nave.starship_class.capitalize().strip()]["max_atmosphering_speed"].append(float(nave.max_atmosphering_speed))
+
+            #  - cost_in_credits
+            if nave.cost_in_credits is not None and funciones_estadisticas.is_number(nave.cost_in_credits):
+                clases_de_naves[nave.starship_class.capitalize().strip()]["cost_in_credits"].append(float(nave.cost_in_credits))
+
+        # Encabezado de la tabla
+        print(f"{'Clase de Nave':<32}|{'Variable':<25}|{'Promedio':<15}|{'Moda':<15}|{'Máximo':<15}|{'Mínimo':<15}")
+        print("-"*150)
+
+        # Accede a cada clase dentro del diccionario
+        for clase, data in clases_de_naves.items():
+            # Accede a los datos de la clase de nave
+            #   Calcula cada estadístico por variable
+            for variable, values in data.items():
+                promedio = funciones_estadisticas.calcular_promedio(values)
+                moda = funciones_estadisticas.calcular_moda(values)
+                maximo = funciones_estadisticas.valor_maximo(values)
+                minimo = funciones_estadisticas.valor_minimo(values)
+                if promedio != None:
+                    promedio_str = f"{promedio:<15.2f}"
+                else:
+                    promedio_str = f"{'?':<15}"
+
+                if moda != None:
+                    moda_str = f"{moda:<15.2f}"
+                else:
+                    moda_str = f"{'?':<15}"
+                
+                if maximo != None:
+                    maximo_str = f"{maximo:<15.2f}"
+                else:
+                    maximo_str = f"{'?':<15}"
+
+                if minimo != None:
+                    minimo_str = f"{minimo:<15.2f}"
+                else:
+                    minimo_str = f"{'?':<15}"
+
+                print(f"{clase:<32} | {variable:<25} | {promedio_str} | {moda_str} | {maximo_str} | {minimo_str}")
+
 
     def exit(self):
         """
