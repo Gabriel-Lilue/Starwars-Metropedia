@@ -540,6 +540,7 @@ class App:
 
                 self.vehiculos.append(Vehiculo(id,name,model,manufacturer,cost_in_credits,length,max_atmosphering_speed,cargo_capacity,vehicle_class))
 
+
     # FUNCIONES DE MOSTRAR
     def mostrar_armas(self):
         """
@@ -843,7 +844,7 @@ class App:
                         print('No puedes agregar más armas... (Máximo 7)\n')
 
                 elif opcion_armas == "2": # ELIMINAR
-                    if len(mision.weapons) != 0:
+                    if len(mision.weapons) != 1:
                         print('\nARMAS DE LA MISIÓN\n')
                         for arma in mision.weapons:
                             print(arma.show())
@@ -860,7 +861,7 @@ class App:
                         else:
                             print('Arma no encontrada...\n')
                     else:
-                        print('No hay armas para eliminar...\n')
+                        print('Debe haber al menos 1 arma...\n')
                 
             elif opcion =="2": # INTEGRANTES
                 opcion_personajes = input('\nMODIFICAR INTEGRANTES\n1. Agregar\n2. Eliminar\n3. Volver\n--> ')
@@ -883,7 +884,7 @@ class App:
                         print('No puedes agregar más personajes... (Máximo 7)\n')
 
                 elif opcion_personajes == "2": # ELIMINAR
-                    if len(mision.characters) != 0:
+                    if len(mision.characters) != 1:
                         print('\nPERSONAJES DE LA MISIÓN\n')
                         for personaje in mision.characters:
                             print(personaje.show())
@@ -900,7 +901,7 @@ class App:
                         else:
                             print('Personaje no encontrado...\n')
                     else:
-                        print('No hay personajes para eliminar...\n')
+                        print('Debe haber al menos 1 integrante...\n')
                 
             elif opcion == "3":
                 break
@@ -1094,8 +1095,100 @@ Ingrese el número de su selección --> ''')
             while not opcion.isnumeric() or int(opcion) not in range(1,4):
                 opcion = input('Error...\nIngrese el número de su selección --> ')
 
-            if opcion == "1": # GRÁFICOS DE LAS NAVES FaLTA
-                pass
+            if opcion == "1": # GRÁFICOS DE LAS NAVES
+                while True:
+                    opcion_naves = input('''
+¿Qué gráfico deseas visualizar?
+1. Longitud de la Nave
+2. Capacidad de Carga
+3. Clasificación de hiperimpulsor
+4. MGLT (Modern Galactic Light Time)
+5. Volver
+--> ''')
+                    while not opcion_naves.isnumeric() or int(opcion_naves) not in range(1,6):
+                        opcion_naves = input('Error...\n¿Qué gráfico deseas visualizar? --> ')
+
+                    if opcion_naves == "1": # LONGITUD DE LAS NAVES
+                        diccionario_longitud = {"unknown": 0}
+                        for nave in self.naves:
+                            if str(nave.length) not in diccionario_longitud:
+                                diccionario_longitud[str(nave.length)] = 1
+                            else:
+                                diccionario_longitud[str(nave.length)] += 1
+
+                        longitudes = list(diccionario_longitud.keys())
+                        cantidad_longitudes = list(diccionario_longitud.values())
+
+                        plt.figure(figsize=(12,6))
+                        plt.bar(longitudes, cantidad_longitudes, color='purple')
+                        plt.xlabel('Longitudes')
+                        plt.ylabel('Cantidad de Naves con Longitud Específica')
+                        plt.title('Longitud de la Nave')
+                        plt.xticks(rotation=90)
+                        plt.tight_layout()
+                        plt.show()
+
+                    elif opcion_naves == "2": # CAPACIDAD DE CARGA
+                        diccionario_capacidad_carga = {"unknown": 0}
+                        for nave in self.naves:
+                            if str(nave.cargo_capacity) not in diccionario_capacidad_carga:
+                                diccionario_capacidad_carga[str(nave.cargo_capacity)] = 1
+                            else:
+                                diccionario_capacidad_carga[str(nave.cargo_capacity)] += 1
+
+                        capacidades = list(diccionario_capacidad_carga.keys())
+                        cantidad_capacidades = list(diccionario_capacidad_carga.values())
+
+                        plt.figure(figsize=(12,6))
+                        plt.bar(capacidades, cantidad_capacidades, color='purple')
+                        plt.xlabel('Capacidades')
+                        plt.ylabel('Cantidad de Naves con Capacidad de Carga Específica')
+                        plt.title('Capacidad de Carga')
+                        plt.xticks(rotation=90)
+                        plt.tight_layout()
+                        plt.show()
+                    
+                    elif opcion_naves == "3": # HIPERIMPULSOR
+                        diccionario_hiperimpulsor = {"unknown": 0}
+                        for nave in self.naves:
+                            if nave.hyperdrive_rating not in diccionario_hiperimpulsor:
+                                diccionario_hiperimpulsor[str(nave.hyperdrive_rating)] = 1
+                            else:
+                                diccionario_hiperimpulsor[str(nave.hyperdrive_rating)] += 1
+
+                        hiperimpulsor = list(diccionario_hiperimpulsor.keys())
+                        cantidad_hiperimpulsor = list(diccionario_hiperimpulsor.values())
+
+                        plt.figure(figsize=(12,6))
+                        plt.bar(hiperimpulsor, cantidad_hiperimpulsor, color='purple')
+                        plt.xlabel('Hiperimpulsores')
+                        plt.ylabel('Cantidad de Naves con Hiperimpulsor Específico')
+                        plt.title('Clasificación de Hiperimpulsor')
+                        plt.xticks(rotation=90)
+                        plt.tight_layout()
+                        plt.show()
+                    
+                    elif opcion_naves == "4": # MGLT
+                        diccionario_MGLT = {"unknown": 0}
+                        for nave in self.naves:
+                            if nave.MGLT not in diccionario_MGLT:
+                                diccionario_MGLT[nave.MGLT] = 1
+                            else:
+                                diccionario_MGLT[nave.MGLT] += 1
+
+                        MGLT = list(diccionario_MGLT.keys())
+                        cantidad_MGLT = list(diccionario_MGLT.values())
+
+                        plt.figure(figsize=(12,6))
+                        plt.bar(MGLT, cantidad_MGLT, color='purple')
+                        plt.xlabel('MGLT')
+                        plt.ylabel('Cantidad de Naves con MGLT Específico')
+                        plt.title('MGLT (Modern Galactic Light Time)')
+                        plt.xticks(rotation=90)
+                        plt.tight_layout()
+                        plt.show()
+                    else:
+                        break
 
             elif opcion == "2": # GRÁFICO DE PERSONAJES EN PLANETAS
                 # Planetas con episodios
@@ -1106,9 +1199,6 @@ Ingrese el número de su selección --> ''')
                             diccionario_planetas[planeta.name.capitalize().strip()] = len(planeta.residents)
                         else:
                             diccionario_planetas["unknown"] += 1
-                        
-                print(diccionario_planetas)
-
                 # Crear gráfico
                 nombres_planetas = list(diccionario_planetas.keys())
                 cantidad_personajes = list(diccionario_planetas.values())
@@ -1123,6 +1213,7 @@ Ingrese el número de su selección --> ''')
                 plt.show()
             else:
                 break
+
     def menu_estadisticas(self):
         pass
 
