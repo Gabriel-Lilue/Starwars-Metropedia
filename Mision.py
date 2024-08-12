@@ -1,5 +1,16 @@
 class Mision:
     def __init__(self, id,name, destination, spaceship, weapons, characters):
+        """
+        Constructor de la clase Mision
+
+        Args:
+            id (id): ID de la misión
+            name (string): Nombre de la misión
+            destination (Planeta): Planeta destino
+            spaceship (Nave): Nave a utilizar en la misión
+            weapons (list[Arma]): Lista de objetos de tipo Arma
+            characters (list[Personaje]): Lista de objetos de tipo Personaje
+        """
         self.id = id
         self.name = name
         self.destination = destination
@@ -8,9 +19,15 @@ class Mision:
         self.characters = characters
 
     def show(self):
+        """
+        Metodo para mostrar las variables de manera amigable
+        Returns:
+            string: Mensaje con las variables del objeto
+        """
         return f'''{self.id} - INFORMACIÓN DE LA MISIÓN - 
 NOMBRE: {self.name}
 PLANETA DESTINO: {self.destination.name}
+NAVE: {self.spaceship.name}
 ARMAS:
 {self.show_array(self.weapons)}
 INTEGRANTES:
@@ -18,6 +35,13 @@ INTEGRANTES:
 '''
     
     def show_array(self,lista):
+        """
+        Transforma una lista a string
+        Args:
+            lista (list): lista de elementos a colocar en un string
+        Returns:
+            string: mensaje con la información de los elementos de la lista
+        """
         msg = ''
         if len(lista) == 0:
             return 'No especificado'
@@ -28,10 +52,8 @@ INTEGRANTES:
                 else:
                     msg += f'{element.name}'
             return msg
-    
-    def show_array2(self,lista):
-        pass
 
+    # FUNCIONES PARA MOSTRAR LA INFORMACIÓN DE CADA OBJETO
     def show_destination(self):
         print('DESTINO\n')
         print(self.destination.show())

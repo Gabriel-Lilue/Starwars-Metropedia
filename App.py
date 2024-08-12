@@ -1,6 +1,9 @@
 import requests
 import os
 
+import matplotlib.pyplot as plt
+
+from Estadistica import Estadistica
 from Pelicula import Pelicula
 from Especie import Especie
 from Planeta import Planeta
