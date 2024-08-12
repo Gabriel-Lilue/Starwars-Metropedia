@@ -1215,8 +1215,10 @@ Ingrese el número de su selección --> ''')
                 break
 
     def menu_estadisticas(self):
+        """
+        Estadísticas de las clases de nave
+        """
         pass
-
 
     def exit(self):
         """
