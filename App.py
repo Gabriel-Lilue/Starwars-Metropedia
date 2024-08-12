@@ -16,6 +16,9 @@ from Archivos import Archivo
 
 class App:
     def __init__(self):
+        """
+        Inicializa las listas de objetos y el diccionario de URLs.
+        """
         self.peliculas = []
         self.especies = []
         self.planetas = []
@@ -29,6 +32,9 @@ class App:
 
     # CENTRALIZAR FUNCIONES DE LA API
     def get_api_info(self):
+        """
+        Centraliza las funciones que obtienen la información de la API de Star Wars.
+        """
         print('\nCargando información... Esta operación puede tomar unos minutos, por favor espere.\n')
 
         self.get_transporte()
@@ -50,15 +56,35 @@ class App:
 
     # FUNCIONES UTILES
     def add_URLs(self, name, url):
+        """
+        Añade una URL al diccionario de URLs.
+        Args:
+            name (string): Nombre de la clave asociada al URL
+            url (string): URL a añadir.
+        """
         self.urls[name] = url
     
     def find_URLs_match(self, url):
+        """
+        Busca una URL en el diccionario de URLs y devuelve la clave asociada.
+        Args:
+            url (string): URL a buscar.
+        Returns:
+            name (string): Nombre asociado a la URL. Si no se encuentra, devuelve None.
+        """
         for name, url_match in self.urls.items():
             if url_match == url:
                 return name
         return None
             
     def return_list(self, lista):
+        """
+        Reemplaza las URLs de una lista por los nombres asociados en el diccionario de URLs.
+        Args:
+            lista (list): Lista de URLs.
+        Returns:
+            lista (list): Lista con los nombres asociados a las URLs.
+        """
         if len(lista) != 0:
             for url in lista:
                 name = self.find_URLs_match(url)
@@ -67,6 +93,13 @@ class App:
         return lista
 
     def get_all_items(self, url):
+        """
+        Obtiene todos los elementos de una API que contiene una paginación. Permite navegar las páginas de la API.
+        Args:
+            url (string): URL de la API.
+        Returns:
+            lista (list): Lista con todos los elementos de la API.
+        """
         lista = []
         while True:
             response = requests.get(url)
@@ -79,24 +112,45 @@ class App:
         return lista
 
     def buscar_objeto(self, id, lista):
+        """
+        Busca un objeto en una lista por su ID.
+        Args:
+            id (int): ID del objeto a buscar.
+            lista (list): Lista de objetos.
+
+        Returns:
+            elemento: Objeto encontrado. Si no se encuentra, devuelve None.
+        """
         for elemento in lista:
             if int(elemento.id) == id:
-                print('a')
                 return elemento
         return None
     
     def buscar_objeto2(self, name, lista):
+        """
+        Busca un objeto en una lista por su nombre.
+        Args:
+            name (string): Nombre del objeto a buscar.
+            lista (list): Lista de objetos.
+        Returns:
+            elemento: Objeto encontrado. Si no se encuentra, devuelve None.
+        """
         for elemento in lista:
             if elemento.name == name:
-                print('a')
                 return elemento
         return None
 
+
     # OBTENER INFORMACION DE LA API
     def get_transporte(self):
+        """
+        Obtiene la información de vehículos y naves de la API de Star Wars.
+        """
+
+        # VEHICULOS
         url = 'https://swapi.dev/api/vehicles/'
         vehiculos = self.get_all_items(url) # Obtenemos todos los vehiculos de la API
-        # self, id,name,model,manufacturer,cost_in_credits,length,max_atmosphering_speed,cargo_capacity,vehicle_class):
+        
         for vehiculo in vehiculos:
             id = len(self.vehiculos) + 1
             name = vehiculo['name']
@@ -112,6 +166,7 @@ class App:
 
             self.vehiculos.append(Vehiculo(id,name,model,manufacturer,cost_in_credits,length,max_atmosphering_speed,cargo_capacity,vehicle_class))
 
+        # NAVES
         url = 'https://swapi.dev/api/starships/'
         naves = self.get_all_items(url)
         # self, id,name,model,manufacturer,cost_in_credits,length,max_atmosphering_speed,cargo_capacity,hyperdrive_rating,MGLT,starship_class
@@ -133,6 +188,9 @@ class App:
             self.naves.append(Nave(id,name,model,manufacturer,cost_in_credits,length,max_atmosphering_speed,cargo_capacity,hyperdrive_rating,MGLT,starship_class))
 
     def get_peliculas(self):
+        """
+        Obtiene la información de las películas de la API de Star Wars.
+        """
         url = 'https://swapi.dev/api/films/'
         peliculas = self.get_all_items(url)
         for pelicula in peliculas:
@@ -145,11 +203,12 @@ class App:
             release_date = pelicula['release_date']
             
             self.add_URLs(title, pelicula['url'])
-            
-            # self, id, episode_id, release_date, opening_crawl, director, producer
             self.peliculas.append(Pelicula(id,title,episode_id,release_date ,opening_crawl,director,producer))
 
     def get_especies(self):
+        """
+        Obtiene la información de las especies de la API de Star Wars.
+        """
         url = 'https://swapi.dev/api/species/'
         especies = self.get_all_items(url)
         for especie in especies:
@@ -182,6 +241,9 @@ class App:
             self.especies.append(Especie(id,name,classification,designation,average_height,skin_colors,hair_colors,eye_colors,average_lifespan,language,homeworld,people,films))
 
     def get_planetas(self):
+        """
+        Obtiene la información de los planetas de la API de Star Wars.
+        """
         url = 'https://swapi.dev/api/planets/'
         planetas = self.get_all_items(url)
         # self, id,name,diameter,rotation_period,orbital_period,gravity,population,climate,terrain,surface_water,residents,films
@@ -207,6 +269,9 @@ class App:
             self.planetas.append(Planeta(id,name,diameter,rotation_period,orbital_period,gravity,population,climate,terrain,surface_water,residents,films))
 
     def get_personajes(self):
+        """
+        Obtiene la información de los personajes de la API de Star Wars.
+        """
         url = 'https://swapi.dev/api/people/'
         personajes = self.get_all_items(url)
         # id, name, species, gender, films, homeworld, starships, vehicles
@@ -243,6 +308,9 @@ class App:
             self.personajes.append(Personaje(id,name,species,gender,films,homeworld,starships,vehicles))
 
     def actualizar_info(self):
+        """
+        Actualiza la información de los objetos con los nombres de las URLs.
+        """
         # Actualizamos la información de los objetos
 
         # ESPECIES
@@ -262,13 +330,13 @@ class App:
                     planeta.residents[i] = persona_name
 
     def csv_info(self):
+        """
+        Actualiza la información de los objetos y listas con los archivos CSV
+        """
         # Aqui se agregan las armas
         archivo = Archivo()
         armas = archivo.leer_csv('csv/weapons.csv')
         for arma in armas:
-            # id,name,model,manufacturer,cost_in_credits ,length ,type,description,films
-
-            # id,name,model,manufacturer,cost_in_credits,length,type,description,films
             id = int(arma[0])
             name = arma[1]
             model = arma[2]
@@ -354,14 +422,28 @@ class App:
                     residents = planeta_csv[10].split(",")
                 else:
                     residents = [planeta_csv[10]]
+                    for r in residents:
+                        r = r.strip()
                 
                 if "," in planeta_csv[11]:
                     films = planeta_csv[11].split(",")
+                    for f in films:
+                        f = f.strip()
                 else:
                     [planeta_csv[11]]
+                    
 
                 self.planetas.append(Planeta(id,name,diameter,rotation_period,orbital_period,gravity,population,climate,terrain,surface_water,residents,films))
+            else:
+                if "," in planeta_csv[10]:
+                    residents = planeta_csv[10].split(",")
+                else:
+                    residents = [planeta_csv[10]]
 
+                planeta_modificar = self.buscar_objeto2(planeta_csv[1], self.planetas)
+                for resident in residents:
+                    if resident not in planeta_modificar.residents:
+                        planeta_modificar.residents.append(resident.strip())
         # PERSONAJES
         personajes_csv = archivo.leer_csv('csv/characters.csv')
         names = []
@@ -377,6 +459,12 @@ class App:
                 gender = personaje_csv[3]
                 films = personaje_csv[4].split(",")
                 homeworld = personaje_csv[10]
+
+                for planeta in self.planetas:
+                    if homeworld == planeta.name:
+                        if name not in planeta.residents:
+                            planeta.residents.append(name)
+
                 starships = ["No definido"]
                 vehicles = ["No definido"]
 
@@ -391,17 +479,40 @@ class App:
         for nave_csv in naves_csv:
             if nave_csv[1] not in names:
                 id = len(self.naves) + 1
-                # id,name,model,manufacturer,cost_in_credits,length,max_atmosphering_speed,cargo_capacity,hyperdrive_rating,MGLT,starship_class
-                # id,name,model,manufacturer,cost_in_credits,length,max_atmosphering_speed,crew,passengers,cargo_capacity,consumables,hyperdrive_rating,MGLT,starship_class,pilots,films
                 name = nave_csv[1]
                 model = nave_csv[2]
                 manufacturer = nave_csv[3]
-                cost_in_credits = nave_csv[4]
-                length = nave_csv[5]
-                max_atmosphering_speed = nave_csv[6]
-                cargo_capacity = nave_csv[9]
-                hyperdrive_rating = nave_csv[11]
-                MGLT = nave_csv[12]
+
+                if not nave_csv[4].isspace():
+                    cost_in_credits = nave_csv[4]
+                else:
+                    cost_in_credits = "unknown"
+
+                if not nave_csv[5].isspace():
+                    length = nave_csv[5]
+                else:
+                    length = "unknown"
+                
+                if not nave_csv[6].isspace():
+                    max_atmosphering_speed = nave_csv[6]
+                else:
+                    max_atmosphering_speed = "unknown"
+                
+                if not nave_csv[9].isspace():
+                    cargo_capacity = nave_csv[9]
+                else:
+                    cargo_capacity = "unknown"
+                
+                if not nave_csv[11].isspace():
+                    hyperdrive_rating = nave_csv[11]
+                else:
+                    hyperdrive_rating = "unknown"
+                
+                if not nave_csv[12].isspace():
+                    MGLT = nave_csv[12]
+                else:
+                    MGLT = "unknown"
+
                 starship_class = nave_csv[13]
 
                 self.naves.append(Nave(id,name,model,manufacturer,cost_in_credits,length,max_atmosphering_speed,cargo_capacity,hyperdrive_rating,MGLT,starship_class))
@@ -415,8 +526,6 @@ class App:
         for vehiculo_csv in vehiculos_csv:
             if vehiculo_csv[1] not in names:
                 id = len(self.vehiculos) + 1
-                # id,name,model,manufacturer,cost_in_credits,length,max_atmosphering_speed,cargo_capacity,vehicle_class
-                # id,name,model,manufacturer,cost_in_credits,length,max_atmosphering_speed,crew,passengers,cargo_capacity,consumables,vehicle_class,pilots,films
                 name = vehiculo_csv[1]
                 model = vehiculo_csv[2]
                 manufacturer = vehiculo_csv[3]
@@ -430,31 +539,55 @@ class App:
 
     # FUNCIONES DE MOSTRAR
     def mostrar_armas(self):
+        """
+        Muestra las armas disponibles.
+        """
         for arma in self.armas:
             print(arma.show())
     
     def mostrar_personajes(self):
-        for personaje in self.personajes:
+        """
+        Muestra los personajes disponibles
+        """
+        for i,personaje in self.personajes:
             print(personaje.show())
+            if i == 100:
+                self.continuar()
 
     def mostrar_peliculas(self):
+        """
+        Muestra las películas disponibles.
+        """
         for pelicula in self.peliculas:
             print(pelicula.show())
 
     def mostrar_especies(self):
+        """
+        Muestra las especies disponibles.
+        """
         for especie in self.especies:
             print(especie.show())
 
     def mostrar_planetas(self):
+        """
+        Muestra los planetas disponibles.
+        """
         for planeta in self.planetas:
             print(planeta.show())
 
     def mostrar_naves(self):
+        """
+        Muestra las naves disponibles.
+        """
         for nave in self.naves:
             print(nave.show())
 
+
     # FUNCIONES DE BUSCAR
     def buscar_personajes(self):
+        """
+        Permite la búsqueda de los personajes ingresando caracteres que puedan coincidir
+        """
         while True:
             print('\nBÚSQUEDA DE PERSONAJES')
             name = input('Ingrese el nombre del personaje deseado -> ').lower()
@@ -481,9 +614,16 @@ class App:
                 if ans.lower() == 'n':
                     break
 
-    def buscar_personajes2(self, lista_personaes):
+    def buscar_personajes2(self, lista_personajes):
+        """
+        Permite la búsqueda de personajes ingresando su ID.
+        Args:
+            lista_personajes (list): Lista de personajes a excluir de la búsqueda.
+        Returns:
+            Objeto (Personaje): Personaje encontrado. Si no se encuentra, devuelve None.
+        """
         for personaje in self.personajes:
-            if personaje not in lista_personaes:
+            if personaje not in lista_personajes:
                 print(personaje.show())
 
         while True:
@@ -505,6 +645,11 @@ class App:
         return None
 
     def buscar_planeta(self):
+        """
+        Permite la búsqueda de un planeta ingresando su ID.
+        Returns:
+            Objeto (Planeta): Planeta encontrado. Si no se encuentra, devuelve None.
+        """
         self.mostrar_planetas()
         while True:
             planeta_seleccion = input('Ingrese el ID del planeta destino -> ')
@@ -528,6 +673,11 @@ class App:
         return None
     
     def buscar_nave(self):
+        """
+        Permite la búsqueda de una nave ingresando su ID.
+        Returns:
+            Objeto (Nave): Nave encontrada. Si no se encuentra, devuelve None.
+        """
         self.mostrar_naves()
         while True:
             nave_seleccion = input('Ingrese el ID de la nave a utilizar -> ')
@@ -552,6 +702,13 @@ class App:
         return None
 
     def buscar_arma(self, lista_armas):
+        """
+        Permite la búsqueda de un arma ingresando su ID.
+        Args:
+            lista_armas (list): Lista de armas a excluir de la búsqueda.
+        Returns:
+            Objeto (Arma): Arma encontrada. Si no se encuentra, devuelve None.
+        """
         print("Lista de armas disponibles:")
         for arma in self.armas:
             if arma not in lista_armas:
@@ -580,9 +737,13 @@ class App:
 
         return None
 
+
     # FUNCIONES DE MISIONES
     # Eduardo
     def txt_a_mision(self):
+        """
+        Convierte el archivo de texto a una lista de misiones.
+        """
         lista_misiones_txt = Archivo().acceder_data()
         if lista_misiones_txt[len(lista_misiones_txt) - 1] == "":
             lista_misiones_txt.pop()
@@ -612,6 +773,9 @@ class App:
             print(Mision(id,name,destination,spaceship,weapons,characters).show())
 
     def mision_a_txt(self):
+        """
+        Convierte la lista de misiones a un archivo de texto
+        """
         misiones_txt = ""
         archivo = Archivo()
 
@@ -619,22 +783,30 @@ class App:
             mision_string = ""
 
             mision_string += f"{mision.id},{mision.name},{mision.destination.name},{mision.spaceship.name},{archivo.listoToString(mision.weapons)},{archivo.listoToString(mision.characters)}"
-            # mision_string += archivo.listoToString(mision.weapons)
-            # mision_string += archivo.listoToString(mision.characters)
             misiones_txt += mision_string + "\n"
 
         archivo.guardar_data(misiones_txt)
         
     def datos_mision(self,mision):
+        """
+        Muestra los datos de una misión.
+        Args:
+            mision (Mision): Misión a mostrar.
+        """
         os.system('cls' if os.name == 'nt' else 'clear')
         print(mision.show())
-        print('Datos Específicos')
+        print('\nDatos Específicos\n')
         mision.show_destination()
         mision.show_spaceship()
         mision.show_weapons()
         mision.show_characters()
     
     def modificar_mision(self,mision):
+        """
+        Permite modificar una misión.
+        Args:
+            mision (Mision): Misión a modificar.
+        """
         print('\nMODIFICAR MISIÓN\n')
         print(mision.show())
 
@@ -731,6 +903,9 @@ class App:
                 break
 
     def menu_misiones(self):
+        """
+        Menú de misiones. Muestra las diferentes acciones que se pueden realizar con las misiones.
+        """
         print('- BIENVENIDO AL MENÚ DE MISIONES -')
         archivo = Archivo()
         if archivo.archivo_existe() and len(self.misiones) != 0:
@@ -902,26 +1077,35 @@ Ingrese el número correspondiente a su selección -> ''')
 
     # FUNCIONES DE ESTADISTICAS
     # Santiago
-    def graficos(self):
+    def menu_graficos(self):
         pass
 
-    def estadisticas(self):
+    def menu_estadisticas(self):
         pass
 
 
     def exit(self):
-        # aqui crear funcion para guardar info de txt
+        """
+        Mensaje de salida.
+        """
         print("Gracias por su visita, vuelva pronto...")
 
     def continuar(self):
+        """
+        Pausa en la ejecución del programa. Limpia la pantalla luego de que el usuario presione la tecla indicada.
+        Función auxiliar para mejorar la experiencia del usuario.
+        """
         input('Presione ENTER para continuar...\n')
         os.system('cls' if os.name == 'nt' else 'clear')
 
 
 
     def menu(self):
+        """
+        Menu inicial del sistema.
+        """
         self.get_api_info()
-
+        
         print('''STAR WARS METROPEDIA
 - "Que la fuerza te acompañe" -
 Bienvenido/a''')
@@ -957,10 +1141,11 @@ Ingrese el número correspondiente a su selección -> ''')
                 case "4":
                     self.buscar_personajes()
                 case "5":
-                    for nave in self.naves:
-                        print(nave.show())
+                    self.menu_graficos()
+                    self.continuar()
                 case "6":
-                    self.estadisticas()
+                    self.menu_estadisticas()
+                    self.continuar()
                 case "7":
                     self.menu_misiones()
                 case "8":
