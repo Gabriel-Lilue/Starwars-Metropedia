@@ -1081,8 +1081,48 @@ Ingrese el número correspondiente a su selección -> ''')
     # FUNCIONES DE ESTADISTICAS
     # Santiago
     def menu_graficos(self):
-        pass
+        """
+        Menú de gráficos. Presenta las distintas opciones de los gráficos
+        """
+        while True:
+            print('\nGRÁFICOS\n')
+            opcion = input('''¿Qué desea visualizar?
+1. Características de las Naves
+2. Cantidad de Personajes Nacidos en Planetas de la Saga
+3. Volver
+Ingrese el número de su selección --> ''')
+            while not opcion.isnumeric() or int(opcion) not in range(1,4):
+                opcion = input('Error...\nIngrese el número de su selección --> ')
 
+            if opcion == "1": # GRÁFICOS DE LAS NAVES FaLTA
+                pass
+
+            elif opcion == "2": # GRÁFICO DE PERSONAJES EN PLANETAS
+                # Planetas con episodios
+                diccionario_planetas = {"unknown": 0}
+                for planeta in self.planetas:
+                    if len(planeta.films) > 0:
+                        if len(planeta.residents) > 0:
+                            diccionario_planetas[planeta.name.capitalize().strip()] = len(planeta.residents)
+                        else:
+                            diccionario_planetas["unknown"] += 1
+                        
+                print(diccionario_planetas)
+
+                # Crear gráfico
+                nombres_planetas = list(diccionario_planetas.keys())
+                cantidad_personajes = list(diccionario_planetas.values())
+
+                plt.figure(figsize=(10,5))
+                plt.bar(nombres_planetas, cantidad_personajes, color='purple')
+                plt.xlabel('Planetas')
+                plt.ylabel('Cantidad de Personajes')
+                plt.title('Cantidad de Personajes Nacidos en Planetas de la Saga')
+                plt.xticks(rotation=45)
+                plt.tight_layout()
+                plt.show()
+            else:
+                break
     def menu_estadisticas(self):
         pass
 

@@ -4,7 +4,7 @@ class Mision:
         Constructor de la clase Mision
 
         Args:
-            id (id): ID de la misión
+            id (int): ID de la misión
             name (string): Nombre de la misión
             destination (Planeta): Planeta destino
             spaceship (Nave): Nave a utilizar en la misión
