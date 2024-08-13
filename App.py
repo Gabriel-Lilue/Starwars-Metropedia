@@ -743,7 +743,6 @@ class App:
 
 
     # FUNCIONES DE MISIONES
-    # Eduardo
     def txt_a_mision(self):
         """
         Convierte el archivo de texto a una lista de misiones.
@@ -818,9 +817,11 @@ class App:
             opcion = input('''¿Qué deseas modificar?
 1. Armas a Utilizar
 2. Integrantes de la Misión
-3. Volver
+3. Nave a Utilizar
+4. Planeta Destino
+5. Volver
 --> ''')
-            while not opcion.isnumeric() or int(opcion) not in [1,2,3]:
+            while not opcion.isnumeric() or int(opcion) not in [1,2,3,4,5]:
                 opcion = input('Error...\n¿Qué deseas modificar? --> ')
 
             if opcion == "1": # ARMAS
@@ -902,17 +903,43 @@ class App:
                             print('Personaje no encontrado...\n')
                     else:
                         print('Debe haber al menos 1 integrante...\n')
-                
-            elif opcion == "3":
+            
+            elif opcion == "3": # NAVE
+                print('\nNAVES DISPONIBLES\n')
+                nave_seleccion = self.buscar_nave()
+                if nave_seleccion is not None:
+                    if nave_seleccion.id != mision.spaceship.id:
+                        mision.spaceship = nave_seleccion
+                        print('Nave modificada...\n')
+                        print(mision.show())
+                    else:
+                        print('La nave ya se encuentra seleccionada...\n')
+                else:
+                    print('Nave no encontrada...\n')
+
+            elif opcion == "4": # PLANETA
+                print('\nPLANETAS DISPONIBLES\n')
+                planeta_seleccion = self.buscar_planeta()
+                if planeta_seleccion is not None:
+                    if planeta_seleccion.id != mision.destination.id:
+                        mision.destination = planeta_seleccion
+                        print('Planeta modificado...\n')
+                        print(mision.show())
+                    else:
+                        print('El planeta ya se encuentra seleccionado...\n')
+                else:
+                    print('Planeta no encontrado...\n')
+
+            elif opcion == "5":
                 break
 
     def menu_misiones(self):
         """
         Menú de misiones. Muestra las diferentes acciones que se pueden realizar con las misiones.
         """
-        print('- BIENVENIDO AL MENÚ DE MISIONES -')
+        print('\n- BIENVENIDO AL MENÚ DE MISIONES -')
         archivo = Archivo()
-        if archivo.archivo_existe() and len(self.misiones) != 0:
+        if archivo.archivo_existe() and len(self.misiones) == 0:
             ans = input('Existe un archivo con misiones guardadas.\n¿Desea cargarlas? No podrá hacerlo luego. [y/n]: ')
             while ans.lower() not in ['y','n']:
                 ans = input('Error...\n¿Desea cargarlas? [y/n]: ')
@@ -922,6 +949,7 @@ class App:
 
         while True:
             opcion = input('''
+OPCIONES DE MISIONES
 1. Construir una Misión
 2. Modificar Misiones Creadas
 3. Visualizar Misiones
@@ -1011,7 +1039,7 @@ Ingrese el número correspondiente a su selección -> ''')
                     else:
                         print('No puedes crear más misiones...\n')
                 
-                case "2": # Modificar misiones (FALTA)
+                case "2": # Modificar misiones
                     if len(self.misiones) != 0:
                         print('MISIONES ACTUALES\n')
                         for i,mision in enumerate(self.misiones):
@@ -1021,19 +1049,18 @@ Ingrese el número correspondiente a su selección -> ''')
                         while not option.isnumeric() or int(option) > len(self.misiones) + 1:
                             option = input('Error...\nIngrese el número correspondiente a la misión a modificar. [Ingrese 0 para volver al menú] --> ')
                         
-                        mision_seleccion = self.buscar_objeto(int(option), self.misiones)
-                        while mision_seleccion is None:
-                            print('Misión no encontrada...\n')
-                            option = input("Ingrese el número correspondiente a la misión a modificar. [Ingrese 0 para volver al menú] --> ")
-                            mision_seleccion = self.buscar_objeto(option, self.misiones)
-                        
-                        self.modificar_mision(mision_seleccion)
+                        if option != "0":
+                            mision_seleccion = self.buscar_objeto(int(option), self.misiones)
+                            while mision_seleccion is None:
+                                print('Misión no encontrada...\n')
+                                option = input("Ingrese el número correspondiente a la misión a modificar. [Ingrese 0 para volver al menú] --> ")
+                                mision_seleccion = self.buscar_objeto(option, self.misiones)
 
-                        if option != '0':
-                            pass
+                            self.modificar_mision(mision_seleccion)
+
                             
                     else:
-                        print('No hay misiones creadas...\n')
+                        print('\nNo hay misiones creadas...\n')
                 
                 case "3": # Visualizar misiones
                     if len(self.misiones) != 0:
@@ -1054,24 +1081,27 @@ Ingrese el número correspondiente a su selección -> ''')
                                 break
                             
                     else:
-                        print('No hay misiones creadas...\n')
+                        print('\nNo hay misiones creadas...\n')
                 
                 case "4": # Guardar misiones
-                    for mision in self.misiones:
-                        print(mision.show())
-                    
-                    opcion = input('¿Desea guardar las misiones creadas? Sobreescribirá el archivo ya existente [y/n] --> ')
-                    while opcion.lower() not in ['y','n']:
-                        opcion = input('Error...\n¿Desea guardar las misiones creadas? [y/n] --> ')
-                    
-                    if opcion.lower() == 'y':
-                        print('Guardando misiones...')
-                        self.mision_a_txt()
-                        print('Misiones guardadas...\n')
-                        self.continuar()
+                    if len(self.misiones) != 0:
+                        for mision in self.misiones:
+                            print(mision.show())
+
+                        opcion = input('¿Desea guardar las misiones creadas? Sobreescribirá el archivo si ya existente [y/n] --> ')
+                        while opcion.lower() not in ['y','n']:
+                            opcion = input('Error...\n¿Desea guardar las misiones creadas? [y/n] --> ')
+
+                        if opcion.lower() == 'y':
+                            print('Guardando misiones...')
+                            self.mision_a_txt()
+                            print('Misiones guardadas...\n')
+                            self.continuar()
+                        else:
+                            print('Misiones no guardadas...\n')
+                            self.continuar()
                     else:
-                        print('Misiones no guardadas...\n')
-                        self.continuar()
+                        print('\nNo hay misiones creadas...\n')
     
                 case "5":
                     break
@@ -1080,7 +1110,6 @@ Ingrese el número correspondiente a su selección -> ''')
 
 
     # FUNCIONES DE ESTADISTICAS
-    # Santiago
     def menu_graficos(self):
         """
         Menú de gráficos. Presenta las distintas opciones de los gráficos
@@ -1125,14 +1154,14 @@ Ingrese el número de su selección --> ''')
                         cantidad_longitudes = list(diccionario_longitud.values())
 
                         # Crear gráfico
-                        plt.figure(figsize=(12,6))
-                        plt.bar(longitudes, cantidad_longitudes, color='purple')
-                        plt.xlabel('Longitudes')
-                        plt.ylabel('Cantidad de Naves con Longitud Específica')
-                        plt.title('Longitud de la Nave')
-                        plt.xticks(rotation=90)
-                        plt.tight_layout()
-                        plt.show()
+                        plt.figure(figsize=(12,6)) # Establece el tamaño del gráfico
+                        plt.bar(longitudes, cantidad_longitudes, color='purple') # Establece los valores de las barras y el color
+                        plt.xlabel('Longitudes') # Establece el nombre del eje x
+                        plt.ylabel('Cantidad de Naves con Longitud Específica') # Establece el nombre del eje y
+                        plt.title('Longitud de la Nave') # Establece el título del gráfico
+                        plt.xticks(rotation=90) # Rota los nombres del eje x
+                        plt.tight_layout() # Ajusta el gráfico
+                        plt.show() # Muestra el gráfico
 
                     elif opcion_naves == "2": # CAPACIDAD DE CARGA
                         diccionario_capacidad_carga = {"unknown": 0}
@@ -1290,7 +1319,7 @@ Ingrese el número de su selección --> ''')
 
                 print(f"{clase:<32} | {variable:<25} | {promedio_str} | {moda_str} | {maximo_str} | {minimo_str}")
 
-
+    # FUNCIONES DE SALIDA / ESTÉTICA
     def exit(self):
         """
         Mensaje de salida.
@@ -1306,7 +1335,7 @@ Ingrese el número de su selección --> ''')
         os.system('cls' if os.name == 'nt' else 'clear')
 
 
-
+    # MENU INICIAL
     def menu(self):
         """
         Menu inicial del sistema.
@@ -1318,7 +1347,8 @@ Ingrese el número de su selección --> ''')
 Bienvenido/a''')
         
         while True:
-            option = input(''' MENÚ 
+            option = input('''
+MENÚ 
 1. Ver Películas de la Saga
 2. Ver Especies de Seres Vivos
 3. Ver Planetas
@@ -1361,6 +1391,7 @@ Ingrese el número correspondiente a su selección -> ''')
                 case _:
                     print("OPCIÓN INVÁLIDA... Intente nuevamente\n")
 
+    # MAIN
 def main():
     app = App()
     app.menu()
