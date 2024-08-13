@@ -151,10 +151,11 @@ class App:
         """
 
         # VEHICULOS
-        url = 'https://swapi.dev/api/vehicles/'
+        url = 'https://swapi.dev/api/vehicles/' # URL de la API de vehículos
         vehiculos = self.get_all_items(url) # Obtenemos todos los vehiculos de la API
         
         for vehiculo in vehiculos:
+            # Por cada elemento se obtiene la información de cada variable y se crea un objeto
             id = len(self.vehiculos) + 1
             name = vehiculo['name']
             model = vehiculo['model']
@@ -165,8 +166,10 @@ class App:
             cargo_capacity = vehiculo['cargo_capacity']
             vehicle_class = vehiculo['vehicle_class']
 
+            # Se añade la URL al diccionario de URLs para su búsqueda más adelante
             self.add_URLs(name, vehiculo['url'])
 
+            # Se añade el objeto a la lista de vehiculos
             self.vehiculos.append(Vehiculo(id,name,model,manufacturer,cost_in_credits,length,max_atmosphering_speed,cargo_capacity,vehicle_class))
 
         # NAVES
@@ -594,15 +597,15 @@ class App:
         """
         while True:
             print('\nBÚSQUEDA DE PERSONAJES')
-            name = input('Ingrese el nombre del personaje deseado -> ').lower()
+            name = input('Ingrese el nombre del personaje deseado -> ').lower() # Solicita al usuario el nombre del personaje a buscar
 
             results = []
             for personaje in self.personajes:
-                if name in personaje.name.lower():
+                if name in personaje.name.lower(): # Para poder buscar por caracteres en común (no necesariamente el nombre exacto)
                     results.append(personaje)
 
             if len(results) == 0:
-                ans = input('No hay coincidencias.\n¿Desea reintentar? [y/n] --> ')
+                ans = input('No hay coincidencias.\n¿Desea reintentar? [y/n] --> ') # Oportunidad de reintentar en caso de que no hayan coincidencias
                 while ans.lower() not in ['y','n']:
                     ans = input('Error...\n¿Desea reintentar? [y/n] --> ')
                 if ans.lower() == 'n':
@@ -610,7 +613,7 @@ class App:
             else:
                 print('\nSe han encontrado las siguientes coincidencias:\n')
                 for p in results:
-                    print(p.show())
+                    print(p.show()) # Se muestran las coincidencias con lo ingresado
 
                 ans = input('¿Desea buscar otro personaje? [y/n] --> ')
                 while ans.lower() not in ['y','n']:
@@ -632,6 +635,9 @@ class App:
 
         while True:
             personaje_seleccion = input('Ingrese el ID del personaje deseado -> ')
+
+            while not personaje_seleccion.isnumeric(): # Validacion
+                personaje_seleccion = input('Error...\nIngrese el ID del personaje deseado -> ')
 
             for personaje in self.personajes:
                 if personaje.id == int(personaje_seleccion):
@@ -748,20 +754,20 @@ class App:
         Convierte el archivo de texto a una lista de misiones.
         """
         lista_misiones_txt = Archivo().acceder_data()
-        if lista_misiones_txt[len(lista_misiones_txt) - 1] == "":
+        if lista_misiones_txt[len(lista_misiones_txt) - 1] == "": # Al guardar de misiones a txt, se guarda con un salto de linea vacio, aqui se elimina
             lista_misiones_txt.pop()
 
         for mision_txt in lista_misiones_txt:
-            mision = mision_txt.split(",")
+            mision = mision_txt.split(",") # Separo mi texto por comas, convirtiendolo en lista donde cada elemento es un atributo
             id = int(mision[0])
             name = mision[1]
-            destination = self.buscar_objeto2(mision[2], self.planetas)
-            spaceship = self.buscar_objeto2(mision[3], self.naves)
+            destination = self.buscar_objeto2(mision[2], self.planetas) # Busco el objeto
+            spaceship = self.buscar_objeto2(mision[3], self.naves) # Busco el objeto
 
-            weapons_txt = mision[4].split("---")
+            weapons_txt = mision[4].split("---") # Los personajes y armas estan divididos asi, los separo y convierto en lineas
             weapons = []
             for weapon in weapons_txt:
-                arma = self.buscar_objeto2(weapon, self.armas)
+                arma = self.buscar_objeto2(weapon, self.armas) # Busco el objeto
                 if arma is not None:
                     weapons.append(arma)
 
@@ -772,8 +778,8 @@ class App:
                 if personaje is not None:
                     characters.append(personaje)
 
-            self.misiones.append(Mision(id,name,destination,spaceship,weapons,characters))
-            print(Mision(id,name,destination,spaceship,weapons,characters).show())
+            self.misiones.append(Mision(id,name,destination,spaceship,weapons,characters)) # Agrego la mision al sistema
+            # print(Mision(id,name,destination,spaceship,weapons,characters).show())
 
     def mision_a_txt(self):
         """
